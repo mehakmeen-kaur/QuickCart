@@ -44,12 +44,7 @@ Perfect for:
 
 ---
 
-## 📦 Installation  
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/QuickCart.git
-cd QuickCart
+## 📦 Installation 
 
 # Install dependencies
 npm install
