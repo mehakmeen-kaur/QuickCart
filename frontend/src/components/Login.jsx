@@ -3,6 +3,7 @@ import { loginStyles } from '../assets/dummyStyles'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaCheck, FaEye, FaEyeSlash, FaLock, FaUser } from 'react-icons/fa'
 import Logout from './Logout'
+import axios from 'axios'
 
 const Login = () => {
 
@@ -41,28 +42,44 @@ const Login = () => {
         }))
       }
 
-      const handleSubmit=(e)=> {
+      const handleSubmit=async (e)=> {
         e.preventDefault();
+        setError('');
         if(!formData.remember){
-            setError("You must agree to terms and conditions")
+            setError('You must agree to Terms and Conditions')
             return;
         }
-
-        //GENERATE TOKEN AND STORE USER DATA
-        const token='mock_token';
-        const userData={
-            email:formData.email,
-            token,
-            timestamp:new Date().toISOString(),
+        try{
+            const response=await axios.post(
+                'http://localhost:4000/api/users/login',
+                {
+                    email:formData.email,
+                    password:formData.password
+                },
+                {headers : {'Content-Type':'application/json'}}
+            );
+            if(response.data.success){
+                const {token,user}=response.data;
+                localStorage.setItem('authToken',token);
+                localStorage.setItem('userData',JSON.stringify(user));
+                setShowToast(true);
+                window.dispatchEvent(new Event('authStateChanged'));
+                setTimeout(()=>{
+                    navigate('/');
+                },1000);
+            }
+            else{
+                setError(response.data.message || 'Login Failed')
+            }
         }
-        localStorage.setItem('authToken',token)
-        localStorage.setItem('userData',JSON.stringify(userData))
-        setError('')
-        setShowToast(true);
-        window.dispatchEvent(new Event('authStateChanged'))
-        setTimeout(()=> {
-            navigate('/')
-        })
+        catch(err){
+            if(err.response && err.response.data){
+                setError(err.response.data.message || 'Login error')
+            }
+            else{
+                setError('Unable to reach server');
+            }
+        }
       }
   return (
     <div className={loginStyles.page}>

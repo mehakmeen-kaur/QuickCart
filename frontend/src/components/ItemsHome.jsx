@@ -4,15 +4,33 @@ import BannerHome from './BannerHome'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../CartContext'
 import { FaChevronRight, FaMinus, FaPlus, FaShoppingCart, FaThList } from 'react-icons/fa'
-import {categories, products} from '../assets/dummyData'
+import {categories} from '../assets/dummyData'
+import axios from 'axios'
 
 const ItemsHome = () => {
+
+    const [products,setProducts]=useState([]);
     const [activeCategory,setActiveCategory]=useState(()=>{
         return localStorage.getItem('activeCategory') || 'All'
     })
     useEffect(()=>{
         localStorage.setItem('activeCategory',activeCategory)
     },[activeCategory])
+
+
+    //FETCH PRODUCTS
+    useEffect(()=>{
+        axios.get('http://localhost:4000/api/items')
+        .then(res=>{
+            const normalized=res.data.map(p=>({
+                ...p,
+                id:p._id,
+            }));
+            setProducts(normalized);
+        })
+        .catch(console.error)
+    },[]);
+
     const navigate=useNavigate()
     const {cart,addToCart,updateQuantity,removeFromCart}=useCart()
 
@@ -38,15 +56,31 @@ const ItemsHome = () => {
     )
 
     const getQuantity=(productId)=> {
-        const item=cart.find((ci)=> ci.id===productId)
+        const item=cart.find((ci)=> ci.productId===productId)
         return item ? item.quantity : 0
     }
 
-    const handleIncrease=(product)=>addToCart(product,1)
+    const getLineItemId=(productId)=>{
+        const item=cart.find((ci)=>ci.productId===productId);
+        return item?item.id:null;
+    };
+
+    const handleIncrease=(product)=>{
+        const lineId=getLineItemId(product._id);
+        if(lineId){
+            updateQuantity(lineId,getQuantity(product._id)+1);
+        }
+        else{
+            addToCart(product._id,1)
+        }
+    }
+
+    // const handleDecrease=(product)=>addToCart(product,1)
     const handleDecrease=(product)=>{
-        const qty=getQuantity(product.id)
-        if(qty > 1) updateQuantity(product.id,qty-1)
-            else removeFromCart(product.id)
+        const qty=getQuantity(product._id)
+        const lineId=getLineItemId(product._id);
+        if(qty > 1 && lineId) updateQuantity(lineId,qty-1)
+            else if(lineId) removeFromCart(lineId)
     }
 
     //REDIRECT TO ITEMS
@@ -162,7 +196,7 @@ const ItemsHome = () => {
                                 <div key={product.id}
                                 className={itemsHomeStyles.productCard}>
                                     <div className={itemsHomeStyles.imageContainer}>
-                                        <img src={product.image} alt={product.name} className={itemsHomeStyles.productImage}
+                                        <img src={`http://localhost:4000${product.imageUrl}`} alt={product.name} className={itemsHomeStyles.productImage}
                                         onError={(e)=>{
                                             e.target.onerror=null;
                                             e.target.parentNode.innerHTML=`

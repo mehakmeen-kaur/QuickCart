@@ -5,43 +5,46 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FiArrowLeft, FiChevronDown, FiChevronUp, FiMinus, FiPlus, FiSearch } from 'react-icons/fi'
 import { FaMinus } from 'react-icons/fa'
 import {groceryData} from '../assets/dummyDataItem'
+import axios from 'axios'
+
+const BACKEND_URL='http://localhost:4000';
 
 //PRODUCT CARD
 const ProductCard = ({item}) => {
   const {cart,cartCount,addToCart,removeFromCart,updateQuantity}=useCart()
+  const productId=item._id;
 
   //GET CURRENT QTY
-  const cartItem=cart.find(cartItem=> cartItem.id === item.id)
-  const quantity=cartItem ? cartItem.quantity : 0
+  const cartItem=cart.find(ci=>ci.productId===productId)
+  const lineId=cartItem?.id;
+  const quantity=cartItem?.quantity || 0;
 
   //ADD TO CART
   const handleAddToCart=()=> {
-    addToCart(item)
+    addToCart(productId,1)
   }
 
   const handleIncrement=()=> {
-    if(quantity===0)
-    {
-      addToCart(item);
-    }
-    else {
-      updateQuantity(item.id,quantity+1)
-    }
+    updateQuantity(lineId,quantity+1);
   }
 
   const handleDecrement=()=> {
-    if(quantity===1){
-      removeFromCart(item.id)
-    }
-    else if(quantity>1){
-      updateQuantity(item.id,quantity-1)  
-    }
+    if(quantity<=1) removeFromCart(lineId);
+    else updateQuantity(lineId,quantity-1);
+  }
+
+  const rawImage=item.image || item.imageUrl;
+  let imgSrc=item.image;
+  if(rawImage){
+    if(rawImage.startsWith('http')) imgSrc=rawImage;
+    else if(rawImage.startsWith('/')) imgSrc=`${BACKEND_URL}${rawImage}`;
+    else imgSrc=`${BACKEND_URL}/uploads/${rawImage}`
   }
 
   return (
     <div className={itemsPageStyles.productCard}>
       <div className={itemsPageStyles.imageContainer}>
-        <img src={item.image} alt={item.name}
+        <img src={imgSrc} alt={item.name}
         className={itemsPageStyles.productImage} />
       </div>
 
@@ -104,6 +107,7 @@ const Item = () => {
   const location=useLocation()
   const [expandedCategories,setExpandedCategories]=useState({});
   const [allExpanded,setAllExpanded]=useState(false)
+  const [data,setData]=useState(groceryData);
 
   //SEARCH QUERY FROM URL
   useEffect(()=> {
@@ -114,6 +118,24 @@ const Item = () => {
       setSearchTerm(search)
     }
   },[location])
+
+  //FETCH FROM BACKEND SIDE
+  useEffect(()=>{
+    axios.get(`${BACKEND_URL}/api/items`)
+    .then(res=>{
+      const products=Array.isArray(res.data)
+      ? res.data
+      : res.data.products || [];
+      const grouped=products.reduce((acc,item)=>{
+        const cat=item.category || 'Uncategorized';
+        if(!acc[cat]) acc[cat]={id:cat,name:cat,items:[]};
+        acc[cat].items.push(item);
+        return acc;
+      },{});
+      setData(Object.values(grouped));
+    })
+    .catch(err=> console.error('Fetching error:', err))
+  },[]);
 
   //ENHANCE SEARCH
   const itemMatchesSearch=(item,term)=>{
@@ -128,12 +150,12 @@ const Item = () => {
 
   //FILTER 
   const filteredData=searchTerm
-  ? groceryData.map(category=> ({
+  ? data.map(category=> ({
     ...category,
     items:category.items.filter(item=>
       itemMatchesSearch(item,searchTerm)
     )
-  })).filter(category=> category.items.length > 0) : groceryData
+  })).filter(category=> category.items.length > 0) : data
 
   //CLEAR SEARCH
   const clearSearch=()=>{
@@ -155,7 +177,7 @@ const Item = () => {
     }
     else{
       const expanded={};
-      groceryData.forEach(category=>{
+      data.forEach(category=>{
         expanded[category.id]=true;
       })
       setExpandedCategories(expanded)
@@ -191,7 +213,7 @@ const Item = () => {
             if(searchTerm.trim()) {
               navigate(`/items?search=${encodeURIComponent(searchTerm)}`)
             }
-          }}_className={itemsPageStyles.searchForm}>
+          }}className={itemsPageStyles.searchForm}>
             <input type="text" value={searchTerm} onChange={(e)=> setSearchTerm(e.target.value)}
             placeholder='Search fruits, vegetables, meats...'
             className={itemsPageStyles.searchInput} />
@@ -224,7 +246,7 @@ const Item = () => {
                 </div>
                 <div className={itemsPageStyles.productsGrid}>
                   {visibleItems.map(item=> (
-                    <ProductCard key={item.id} item={item}/>
+                    <ProductCard key={item._id || item.id} item={item}/>
                   ))}
                 </div>
 
