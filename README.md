@@ -1,53 +1,64 @@
-# 🛒 QuickCart — MERN Stack Grocery Delivery App  
+🛒 RushBasket — MERN Grocery Delivery Web App
 
-A fully responsive **Grocery Delivery Frontend** built using **Express.js, React.js, and Node.js**.  
-🚀 Inspired by **Zepto, Blinkit, and Instamart**, this project delivers a lightning-fast, scalable, and mobile-friendly UI powered by **React + Tailwind CSS**.  
+RushBasket is a real-world Grocery Delivery Web Application built using the MERN stack with Stripe payment integration.
+Inspired by platforms like Blinkit, Zepto, and Instamart, it features an admin panel, dynamic cart system, and a fully responsive UI.
 
----
+🚀 Features
+👤 User
 
-## 🚀 Features  
+Browse products with category filtering
 
-📦 **Product Catalog**  
-Browse grocery items with category-wise filtering.  
+Add / remove items from cart
 
-🛍️ **Interactive Product Cards**  
-Beautiful, responsive cards with add-to-cart functionality.  
+Real-time cart updates
 
-🛒 **Cart Management**  
-Add, update, and remove products from the cart seamlessly.  
+Secure checkout using Stripe
 
-📊 **Dashboard-Like Experience**  
-User-friendly layout for quick access to categories and cart.  
+Mobile-first responsive UI
 
-📱 **Mobile Responsive UI**  
-Optimized for desktops, tablets, and smartphones.  
+🛠️ Admin
 
-⚡ **Modern Tech Stack**  
-Built with scalable folder structure for large apps.  
+Role-based admin dashboard
 
----
+Add, update, delete products
 
-## 💡 Use Cases  
+Manage categories
 
-Perfect for:  
-- Students practicing **React + Tailwind** responsive design  
-- Developers building **real-world portfolio projects**  
-- Freelancers creating **client-ready grocery delivery UIs**  
-- Quick commerce enthusiasts inspired by **Blinkit/Zepto**  
+Real-time product updates
 
----
+🧩 Tech Stack
 
-## 🛠️ Tech Stack  
+Frontend: React.js, Tailwind CSS
 
-- **Frontend:** React.js, Tailwind CSS  
-- **Backend:** Node.js, Express.js   
+Backend: Node.js, Express.js
 
----
+Database: MongoDB
 
-## 📦 Installation 
+Payments: Stripe API
 
-# Install dependencies
+🧠 My Learning
+
+Full-stack MERN development
+
+REST API creation
+
+Stripe payment gateway integration
+
+React state & cart management
+
+Admin dashboards & role-based access
+
+Responsive UI with Tailwind CSS
+
+
+📦 Installation
+# Backend setup
+cd backend
 npm install
 
-# Run the application
+# Frontend setup
+cd ../frontend
+npm install
+
+# Run project
 npm run dev
