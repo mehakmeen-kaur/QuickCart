@@ -30,15 +30,23 @@ Clean and modular codebase suitable for real-world production apps.
 🧠 My Learning
 -
 Full-stack development using the MERN stack
+
 REST API design with Node.js & Express.js
+
 Stripe payment gateway integration
+
 Responsive UI with React + Tailwind CSS
+
 Cart state management
+
 Role-based admin dashboards
 
 🛠️ Tech Stack
 -
 Frontend: React.js, Tailwind CSS
+
 Backend: Node.js, Express.js
+
 Database: MongoDB
+
 Payments: Stripe API
